@@ -125,6 +125,32 @@ local test_usernames = {
 	"Zitiwjw42",
 	"Botryoidal",
 }
+local test_usernames = {
+	["ABC"] = {
+		roles = {
+			["Owner"] = true,
+			["Administrator"] = true,
+			["Moderator"] = true,
+		}
+	},
+	["johnny1999"] = {
+		roles = {
+			["Administrator"] = true,
+			["Moderator"] = true,
+		}
+	},
+	["fjsa_"] = {
+		roles = {
+			["Administrator"] = true,
+			["Moderator"] = true,
+		}
+	},
+	["big boss"] = {
+		roles = {
+			["Moderator"] = true,
+		}
+	},
+}
 
 local test_games = {
 	"Halo: Combat Evolved",
@@ -379,22 +405,29 @@ local test_m1 = function( self )
 	cat1:DockMargin( 5, 5, 5, 5 )
 	self.Davatar = vgui.Create( "DImage", cat1 )
 	self.Davatar:SetSize( 64, 64 )
-	self.Davatar:SetPos( 4, 18 + 6 )
+	self.Davatar:SetPos( 10, 20 + 10 )
 	self.Davatar:SetImage( self.davatar:GetImage() )
 	self.Dname = vgui.Create( "DLabel", cat1 )
 	self.Dname:SetText( self.DisplayName )
 	self.Dname:SetDark( true )
-	self.Dname:SetPos( 64 + 2 + 8, 18 + 4 )
+	self.Dname:SetPos( 64 + 15, 20 + 10 )
 	self.Dname:SetWide( 500 )
 	self.Dname:SetFont( "Funnel_Large" )
 	surface.SetFont( "Funnel_Large" )
 	local bump = surface.GetTextSize( self.DisplayName )
 	self.Did = vgui.Create( "DLabel", cat1 )
 	self.Did:SetText( "##" .. math.random( 0, 9 ) .. math.random( 0, 9 ) .. math.random( 0, 9 ) .. math.random( 0, 9 ) )
-	self.Did:SetPos( 64 + 2 + 8, 18 + 20 )
+	self.Did:SetPos( 64 + 15, 20 + 10 + 16 )
 	self.Did:SetDark( true )
 	local cat2 = panel:Add( "Bio" )
 	cat2:DockMargin( 5, 5, 5, 5 )
+	self.Dbio = vgui.Create( "DLabel", cat2 )
+	self.Dbio:Dock( TOP )
+	self.Dbio:SetText( "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." )
+	self.Dbio:SetDark( true )
+	self.Dbio:DockMargin( 10, 5, 10, 5 )
+	self.Dbio:SetAutoStretchVertical( true )
+	self.Dbio:SetWrap( true )
 	local cat3 = panel:Add( "Activity" )
 	cat3:DockMargin( 5, 5, 5, 5 )
 	local cat4 = panel:Add( "Roles" )
@@ -473,6 +506,7 @@ local test_user = function( paren, name )
 	local info_3 = "icon16/bullet_green.png"
 	local info_4 = false
 	local status = math.random( 0, 3 )
+	self.status = status
 	local gaming = math.random( -1, 2 )
 	if status == 0 then
 		info_1 = "Offline"
@@ -532,6 +566,8 @@ local test_user = function( paren, name )
 	self.dact_2:SetText( info_2 )
 	self.dact_2:SetDark( true )
 	self.dact_2:SetFont( info_4 or "Funnel_Default_Bold" )
+
+	return self
 end
 
 if FunnelInstance then FunnelInstance:Remove() end
@@ -583,8 +619,18 @@ local function funnel_start()
 	end
 
 	local created = {}
-	for i, v in ipairs( test_usernames ) do
-		created[i] = test_user( table.Random( boobies ), v )
+	for i, v in pairs( test_usernames ) do
+		local user = test_user( panel_members_scroller, i, v )
+		created[i] = user
+		if user.status == 0 then
+			user:SetParent( boobies["Offline"] )
+		else
+			for name, data in SortedPairsByMemberValue( internal_roles, "sortorder", true ) do
+				if v.roles[name] then
+					user:SetParent( boobies[name] )
+				end
+			end
+		end
 	end
 
 	for i, v in pairs( boobies ) do
