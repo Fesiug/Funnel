@@ -362,35 +362,47 @@ local test_icon = {
 	"blah/21069.png",
 }
 
-surface.CreateFont("Funnel_Default", {
-	font = "Tahoma",
-	size = 13,
-	antialias = false,
-})
+do
+	surface.CreateFont("Funnel_Default", {
+		font = "Tahoma",
+		size = 13,
+		antialias = false,
+	})
 
-surface.CreateFont("Funnel_Default_Bold", {
-	font = "Tahoma",
-	size = 13,
-	weight = 1000,
-	antialias = false,
-})
+	surface.CreateFont("Funnel_Default_Bold", {
+		font = "Tahoma",
+		size = 13,
+		weight = 1000,
+		antialias = false,
+	})
 
-surface.CreateFont("Funnel_Default_Italic", {
-	font = "Tahoma",
-	size = 13,
-	antialias = false,
-	italic = true,
-})
+	surface.CreateFont("Funnel_Default_Italic", {
+		font = "Tahoma",
+		size = 13,
+		antialias = false,
+		italic = true,
+	})
 
-surface.CreateFont("Funnel_Large", {
-	font = "Roboto",
-	size = 24,
-	weight = 1000,
-	antialias = false,
-})
+	surface.CreateFont("Funnel_Default_Underline", {
+		font = "Tahoma",
+		size = 13,
+		antialias = false,
+		underline = true,
+	})
 
-local test_paint = function( self, w, h )
-	--draw.RoundedBox( 8, 0, 0, w, h, Color( 127, 127, 127, 127 ) )
+	surface.CreateFont("Funnel_Default_Strikethrough", {
+		font = "Tahoma",
+		size = 13,
+		antialias = false,
+		rotary = true,
+	})
+
+	surface.CreateFont("Funnel_Large", {
+		font = "Roboto",
+		size = 24,
+		weight = 1000,
+		antialias = false,
+	})
 end
 
 local test_m1 = function( self )
@@ -570,6 +582,9 @@ local test_user = function( paren, name )
 	return self
 end
 
+local C_BG = Color( 0, 0, 0, 0 )
+local C_ALT = Color( 200, 200, 200, 255 )
+
 if FunnelInstance then FunnelInstance:Remove() end
 local function funnel_start()
 	if FunnelInstance and FunnelInstance:IsValid() then
@@ -594,47 +609,126 @@ local function funnel_start()
 	fi:SetTitle( channel .. " - " .. name )
 	fi:SetIcon( "icon16/email.png" )
 
-	local panel_chat = vgui.Create( "DPanel", fi )
-	local panel_members = vgui.Create( "DPanel", fi )
+	local god_servers = vgui.Create( "DPanel", fi )
+	god_servers:SetBackgroundColor( C_BG )
 
-	local div_members = vgui.Create( "DHorizontalDivider", fi )
+	local god_chat = vgui.Create( "DPanel", fi )
+	god_chat:SetBackgroundColor( C_BG )
+
+	local div_god = vgui.Create( "DHorizontalDivider", fi )
+	div_god:Dock( FILL )
+	div_god:SetLeft( god_servers )
+	div_god:SetRight( god_chat )
+	div_god:SetLeftWidth( 250 )
+
+		local panel_servers = vgui.Create( "DPanel", god_servers )
+		panel_servers:SetSize( 2000, 0 )
+		panel_servers:Add( "DLabel" ):SetText( "Servers" )
+
+		local panel_channels = vgui.Create( "DPanel", god_servers )
+		panel_channels:SetSize( 250, 0 )
+		panel_channels:Add( "DLabel" ):SetText( "Channels" )
+
+	local div_channels = vgui.Create( "DHorizontalDivider", god_servers )
+	div_channels:Dock( FILL )
+	div_channels:SetLeft( panel_servers )
+	div_channels:SetRight( panel_channels )
+	-- div_channels:SetDividerWidth( 4 )
+	div_channels:SetLeftWidth( 0 )
+
+		local panel_chat = vgui.Create( "DPanel", god_chat )
+		panel_chat:SetSize( 2000, 0 )
+		panel_chat:Add( "DLabel" ):SetText( "Chat" )
+
+		local panel_members = vgui.Create( "DPanel", god_chat )
+		panel_members:SetSize( 250, 0 )
+		panel_members:Add( "DLabel" ):SetText( "Members" )
+
+	local div_members = vgui.Create( "DHorizontalDivider", god_chat )
 	div_members:Dock( FILL )
 	div_members:SetLeft( panel_chat )
 	div_members:SetRight( panel_members )
-	div_members:SetLeftWidth( 1024 - 256 )
+	div_members:SetRightMin( 200 )
+	div_members:SetLeftWidth( 5000 )
+	-- div_members:SetDividerWidth( 4 )
 
 	local panel_members_scroller = vgui.Create( "DScrollPanel", panel_members )
 	panel_members_scroller:Dock( FILL )
 
-	local boobies = {}
-	for index, data in SortedPairsByMemberValue( internal_roles, "sortorder" ) do
-		local cat = vgui.Create( "DCollapsibleCategory", panel_members_scroller )
-		boobies[index] = cat
-		cat:SetLabel( index )
-		cat:Dock( TOP )
-		cat:DockMargin( 0, 0, 0, 0 )
-		function cat:Paint( w, h )
-			draw.RoundedBoxEx( 2, 0, 0, w, h, data.color, true, true, false, false )
+	do -- Chat box
+		local frame = panel_chat:Add( "DPanel" )
+		frame:Dock( BOTTOM )
+		frame:SetTall( 60 )
+		frame:SetBackgroundColor( C_ALT )
+
+		local action1 = frame:Add( "DButton" )
+		action1:SetSize( 20, 20 )
+		action1:SetPos( 10, 5 )
+		action1:SetText( "B" )
+		action1:SetFont( "Funnel_Default_Bold" )
+		action1:SetDark( true )
+
+		local action2 = frame:Add( "DButton" )
+		action2:SetSize( 20, 20 )
+		action2:SetPos( 10 + 5 + 20, 5 )
+		action2:SetText( "I" )
+		action2:SetFont( "Funnel_Default_Italic" )
+		action2:SetDark( true )
+
+		local action3 = frame:Add( "DButton" )
+		action3:SetSize( 20, 20 )
+		action3:SetPos( 10 + 10 + 40, 5 )
+		action3:SetText( "U" )
+		action3:SetFont( "Funnel_Default_Underline" )
+		action3:SetDark( true )
+		action2:SetDark( true )
+
+		local textent = frame:Add( "DTextEntry" )
+		textent:SetSize( 100, 20 )
+		textent:SetPos( 10, 30 )
+
+		local textsend = frame:Add( "DButton" )
+		textsend:SetSize( 60, 20 )
+		textsend:SetPos( 10 + 100 + 5, 20 )
+		textsend:SetText( "Send" )
+
+		frame.PerformLayout = function(pnl, w, h)
+			textent:SetSize( frame:GetWide() - 85, 20 )
+			textsend:SetPos( frame:GetWide() - 70, 30 )
 		end
 	end
 
-	local created = {}
-	for i, v in pairs( test_usernames ) do
-		local user = test_user( panel_members_scroller, i, v )
-		created[i] = user
-		if user.status == 0 then
-			user:SetParent( boobies["Offline"] )
-		else
-			for name, data in SortedPairsByMemberValue( internal_roles, "sortorder", true ) do
-				if v.roles[name] then
-					user:SetParent( boobies[name] )
+	if true then -- Member list
+		local boobies = {}
+		for index, data in SortedPairsByMemberValue( internal_roles, "sortorder" ) do
+			local cat = vgui.Create( "DCollapsibleCategory", panel_members_scroller )
+			boobies[index] = cat
+			cat:SetLabel( index )
+			cat:Dock( TOP )
+			cat:DockMargin( 0, 0, 0, 0 )
+			function cat:Paint( w, h )
+				draw.RoundedBoxEx( 2, 0, 0, w, h, data.color, true, true, false, false )
+			end
+		end
+
+		local created = {}
+		for i, v in pairs( test_usernames ) do
+			local user = test_user( panel_members_scroller, i, v )
+			created[i] = user
+			if user.status == 0 then
+				user:SetParent( boobies["Offline"] )
+			else
+				for name, data in SortedPairsByMemberValue( internal_roles, "sortorder", true ) do
+					if v.roles[name] then
+						user:SetParent( boobies[name] )
+					end
 				end
 			end
 		end
-	end
 
-	for i, v in pairs( boobies ) do
-		v:SetLabel( v.Header:GetText() .. " -- " .. #v:GetChildren()-1 )
+		for i, v in pairs( boobies ) do
+			v:SetLabel( v.Header:GetText() .. " -- " .. #v:GetChildren()-1 )
+		end
 	end
 end
 
